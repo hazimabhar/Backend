@@ -117,16 +117,6 @@ app.delete("/worker/:id", async (req, res)=>{
   
 //crud item 
 
-//getallitem
-app.get("/item", async (req, res)=>{
-  const allItem = await prisma.item.findMany({
-    orderBy:{
-      name:'asc'
-    }
-  })
-  res.json(allItem)
-})
-
 //getcanned
 app.get("/item/canned",async (req,res)=>{
   const canned = await prisma.item.findMany(
@@ -179,7 +169,7 @@ app.get("/item/spice",async (req,res)=>{
       orderBy:{
         name:'asc'
       }
-    })
+    }) 
     res.json(spice)
 })
 
@@ -238,7 +228,25 @@ app.get("/item/tool",async (req,res)=>{
     })
     res.json(tool)
 })
-
+//getitembyid
+app.get("/item/:id", async (req, res)=>{
+  const oneItem = await prisma.item.findUnique({
+    where:
+    {
+      idItem: req.params.id
+    }
+  })  
+  res.json(oneItem)
+})
+//getallitem
+app.get("/item", async (req, res)=>{
+  const allItem = await prisma.item.findMany({
+    orderBy:{
+      name:'asc'
+    }
+  })
+  res.json(allItem)
+})
 app.post("/item", async (req, res)=>{
   const newItem = await prisma.item.create({data: req.body})
   res.json(newItem)
@@ -250,7 +258,7 @@ app.put("/item/:id", async (req, res)=>{
   const newCategory = req.body.category
   const newPrice = req.body.price
   const newBarcode = req.body.barcode
-  const newWeight = req.body.weight
+  const newWeight = req.body.weight 
   const newQuantity = req.body.quantity
   const updateItem = await prisma.item.update({
     where: {idItem: id }, 

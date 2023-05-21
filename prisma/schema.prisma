@@ -9,23 +9,23 @@ datasource db {
 
 model User {
   idAccount String   @id @default(uuid())
+  password    String
+  icNumber    String   @unique
   Worker    Worker?
   Manager   Manager?
-  Sale      Sale[]
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
 }
 
 model Worker {
   idWorker    String   @id @default(uuid())
-  icNumber    String   @unique
   name        String
-  password    String
   address     String
   phoneNumber String
   gender      String
   email       String
   role        String
+  Sale      Sale[]
   User        User     @relation(fields: [idAccount], references: [idAccount])
   idAccount   String   @unique
   createAt    DateTime @default(now())
@@ -34,9 +34,7 @@ model Worker {
 
 model Manager {
   idManager   String   @id @default(uuid())
-  icNumber    String   @unique
   name        String
-  password    String
   address     String
   phoneNumber String
   gender      String
@@ -88,8 +86,8 @@ model Sale {
   price         Float
   paymentMethod String
   BuyList       BuyList[]
-  User          User      @relation(fields: [idAccount], references: [idAccount])
-  idAccount     String    @unique
+  Worker          Worker      @relation(fields: [idWorker], references: [idWorker])
+  idWorker     String    @unique
   Report        Report    @relation(fields: [idReport], references: [idReport])
   idReport      String    @unique
   createdAt     DateTime  @default(now())
