@@ -64,6 +64,7 @@ model Item {
   price           Float
   barcode         String           @unique
   weight          String
+  unit            String
   quantity        Int
   BuyList         BuyList[]
   createdAt       DateTime         @default(now())

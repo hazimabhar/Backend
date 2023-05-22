@@ -245,20 +245,22 @@ app.get("/item", async (req, res)=>{
       name:'asc'
     }
   })
-  res.json(allItem)
+  res.json(allItem) 
 })
+
 app.post("/item", async (req, res)=>{
   const newItem = await prisma.item.create({data: req.body})
-  res.json(newItem)
+  res.json(newItem) 
 })
  
 app.put("/item/:id", async (req, res)=>{
   const id = req.params.id
-  const newName = req.body.name
+  const newName = req.body.name 
   const newCategory = req.body.category
   const newPrice = req.body.price
   const newBarcode = req.body.barcode
   const newWeight = req.body.weight 
+  const newUnit = req.body.unit
   const newQuantity = req.body.quantity
   const updateItem = await prisma.item.update({
     where: {idItem: id }, 
@@ -268,6 +270,7 @@ app.put("/item/:id", async (req, res)=>{
       price :newPrice, 
       barcode : newBarcode,
       weight : newWeight,
+      unit: newUnit,
       quantity : newQuantity
     }})
   res.json(updateItem)
