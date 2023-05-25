@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 const {PrismaClient} = require ("@prisma/client")
 const cors = require ('cors')
+const bcrypt = require('bcrypt')
   
 const prisma = new PrismaClient()
 
@@ -19,15 +20,30 @@ app.get("/", async (req, res)=>{
       include :{
         Worker:true,
         Manager: true,
-        Sale:true,
+        // Sale:true,
       }
     })
     res.json(allUsers)
-})
- 
+}) 
+
+
+
 app.post("/", async (req, res)=>{
-  const newUser = await prisma.user.create({data: req.body})
-  res.json(newUser)
+  const {icNumber,password}=req.body
+
+  try{
+    const hashedPassword = await bcrypt.hash(password,10) 
+    const user={
+      icNumber,
+      password : hashedPassword  
+    }
+    const newUser = await prisma.user.create({data: user})
+    res.json(newUser)
+  }
+  catch(error){
+    console.log(error)
+    res.status(500).send("Error creating new subject")
+  }
 })
 
   
@@ -38,14 +54,19 @@ app.put("/:id", async (req, res)=>{
  
 app.delete("/:id", async (req, res)=>{
   const id = req.params.id
-  const deleteUser = await prisma.user.delete({where: {id: id }})
-  res.json(deleteUser)
+  const deleteUser = await prisma.user.delete({where: {idAccount: id }})
+  res.json(deleteUser) 
 })
+
+
 
 //crud worker
 app.get("/worker", async (req, res)=>{
-
-  const allWorker = await prisma.worker.findMany()
+  const allWorker = await prisma.worker.findMany({
+    include:{
+      User:true
+    }
+  })
   res.json(allWorker)
 }) 
 
@@ -57,33 +78,56 @@ app.post("/worker", async (req, res)=>{
 app.put("/worker/:id", async (req, res)=>{
   const id = req.params.id
   const newName = req.body.name
-  const newAddress = req.body.address
+  const newAddress = req.body.address  
   const newPhoneNumber = req.body.phoneNumber
   const newEmail = req.body.email 
-  const newPassword = req.body.password
+  // const newPassword = req.body.password
+  const newGender = req.body.gender
+  const newRole = req.body.role
   const updateWorker = await prisma.worker.update({
     where: {idWorker: id }, 
     data: {
       name :newName,
-      password:newPassword,
+      // password:newPassword,
       address : newAddress,
-      phoneNumber : newPhoneNumber,
-      email:newEmail
+      phoneNumber : newPhoneNumber, 
+      email:newEmail,
+      gender:newGender,
+      role:newRole
     }})
   res.json(updateWorker)
 })
 
-app.delete("/worker/:id", async (req, res)=>{ 
-  const id = req.params.id
-  const deleteWorker = await prisma.worker.delete({where: {idWorker:id}})
-  res.json(deleteWorker) 
+app.delete("/worker/:id", async (req, res)=>{  
+  const idWorker = req.params.id
+  const deleteWorker = await prisma.worker.delete({where: {idWorker:idWorker}})
+  const deleteUser = await prisma.user.delete({where:{idAccount:deleteWorker.idAccount}})
+  res.json(deleteWorker)
 })
 
-//crud manager
-app.get("/manager", async (req, res)=>{
-  const allManager = await prisma.manager.findMany()
-  res.json(allManager)
+app.get("/worker/:id", async (req,res)=>{
+  const oneWorker = await prisma.worker.findUnique({
+    where:{
+      idWorker : req.params.id
+    },
+    include:{
+      User:true
+    }
+  })
+  res.json(oneWorker)
 })
+
+
+//crud manager 
+app.get("/manager", async (req, res)=>{
+  const allManager = await prisma.manager.findMany({
+    include:
+    {
+      User:true
+    }
+  }) 
+  res.json(allManager) 
+}) 
 
 app.post("/manager", async (req, res)=>{
   const newManager = await prisma.manager.create({data: req.body})
@@ -96,23 +140,44 @@ app.put("/manager/:id", async (req, res)=>{
   const newAddress = req.body.address
   const newPhoneNumber = req.body.phoneNumber
   const newEmail = req.body.email  
-  const newPassword = req.body.password
+  // const newPassword = req.body.password
+  const newGender = req.body.gender
+  const newRole = req.body.role
   const updateManager = await prisma.manager.update({
     where: {idManager: id }, 
     data: {
-      name :newName,
-      password:newPassword,
+      name :newName, 
+      // password:newPassword,
       address : newAddress,
       phoneNumber : newPhoneNumber,
-      email:newEmail
-    }})
+      email:newEmail,
+      gender:newGender,
+      role:newRole
+    }}) 
   res.json(updateManager)
 })
+  
+app.delete("/manager/:id",async (req,res)=>{
+  const idManager =req.params.id
+  const deleteManager = await prisma.manager.delete({where: {idManager:idManager}})
+  const deleteUser = await prisma.user.delete({where:{idAccount:deleteManager.idAccount}})
+  res.json(deleteManager)
+})
 
-app.delete("/worker/:id", async (req, res)=>{ 
-  const id = req.params.id
-  const deleteWorker = await prisma.manager.delete({where: {idManager:id}})
-  res.json(deleteWorker) 
+app.get("/manager/:id",async(req,res)=>{
+  const oneManager = await prisma.manager.findUnique(
+    {
+      where:
+      {
+        idManager: req.params.id
+      },
+      include:
+      {
+        User:true
+      }
+    }
+  )
+  res.json(oneManager)
 })
   
 //crud item 
@@ -121,10 +186,10 @@ app.delete("/worker/:id", async (req, res)=>{
 app.get("/item/canned",async (req,res)=>{
   const canned = await prisma.item.findMany(
     {
-      where:{
+      where:{ 
         category : "Tin"
-      },
-      orderBy:{
+      }, 
+      orderBy:{ 
         name:'asc'
       }
     })
@@ -230,7 +295,7 @@ app.get("/item/tool",async (req,res)=>{
 })
 //getitembyid
 app.get("/item/:id", async (req, res)=>{
-  const oneItem = await prisma.item.findUnique({
+  const oneItem = await prisma.item.findUnique({ 
     where:
     {
       idItem: req.params.id
@@ -240,8 +305,8 @@ app.get("/item/:id", async (req, res)=>{
 })
 //getallitem
 app.get("/item", async (req, res)=>{
-  const allItem = await prisma.item.findMany({
-    orderBy:{
+  const allItem = await prisma.item.findMany({  
+    orderBy:{ 
       name:'asc'
     }
   })
@@ -252,7 +317,7 @@ app.post("/item", async (req, res)=>{
   const newItem = await prisma.item.create({data: req.body})
   res.json(newItem) 
 })
- 
+//updateinfo
 app.put("/item/:id", async (req, res)=>{
   const id = req.params.id
   const newName = req.body.name 
@@ -274,6 +339,17 @@ app.put("/item/:id", async (req, res)=>{
       quantity : newQuantity
     }})
   res.json(updateItem)
+})
+//updaestock
+app.put("/updatestock/:id", async (req, res)=>{
+  const id = req.params.id
+  const newQuantity = req.body.quantity
+  const updateStock = await prisma.item.update({
+    where: {idItem: id }, 
+    data: {
+      quantity : newQuantity
+    }})
+  res.json(updateStock)
 })
 
 app.delete("/item/:id", async (req, res)=>{ 
@@ -399,6 +475,16 @@ app.delete("/itembuylistuser/:id", async (req, res)=>{
   const id = req.params.id
   const deleteItemBuyList = await prisma.itembuylistuser.delete({where: {idBuyList:id}})
   res.json(deleteItemBuyList) 
+})
+
+app.get("/:id",async (req,res)=>{
+  const oneUser = await prisma.user.findUnique(
+    {
+      where:{
+        idAccount : req.params.id
+      }
+  })
+  res.json(oneUser)
 })
 
 app.listen (3000, () => {
