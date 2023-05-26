@@ -29,13 +29,14 @@ app.get("/", async (req, res)=>{
 
 
 app.post("/", async (req, res)=>{
-  const {icNumber,password}=req.body
+  const {icNumber,password,role}=req.body
 
   try{
     const hashedPassword = await bcrypt.hash(password,10) 
     const user={
       icNumber,
-      password : hashedPassword  
+      password : hashedPassword,
+      role
     }
     const newUser = await prisma.user.create({data: user})
     res.json(newUser)
@@ -46,6 +47,28 @@ app.post("/", async (req, res)=>{
   }
 })
 
+app.post("/login", async(req,res)=>{
+  const {icNumber,password}=req.body
+  const user = await prisma.user.findUnique({
+    where:{
+      icNumber
+    }
+  })
+  if (!user)
+  {
+    return res.status(401).send("Invalid Identification Number")
+  }
+  const passwordMatch = await bcrypt.compare(password, user.password)
+
+  if(!passwordMatch)
+  {
+    return res.status(401).send("Invalid Password")
+  }
+  const userId = user.idAccount
+
+  res.send(userId)
+
+})
   
 app.put("/:id", async (req, res)=>{
   const id = req.params.id
@@ -58,7 +81,8 @@ app.delete("/:id", async (req, res)=>{
   res.json(deleteUser) 
 })
 
-
+ 
+ 
 
 //crud worker
 app.get("/worker", async (req, res)=>{
@@ -482,7 +506,7 @@ app.get("/:id",async (req,res)=>{
     {
       where:{
         idAccount : req.params.id
-      }
+      } 
   })
   res.json(oneUser)
 })

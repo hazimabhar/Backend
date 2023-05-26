@@ -11,6 +11,7 @@ model User {
   idAccount String   @id @default(uuid())
   password    String
   icNumber    String   @unique
+  role        String
   Worker    Worker?
   Manager   Manager?
   createdAt DateTime @default(now())
@@ -18,7 +19,7 @@ model User {
 
 
 }
-
+ 
 model Worker {
   idWorker    String   @id @default(uuid())
   name        String
@@ -26,7 +27,6 @@ model Worker {
   phoneNumber String
   gender      String
   email       String
-  role        String
   Sale      Sale[]
   User        User     @relation(fields: [idAccount], references: [idAccount])
   idAccount   String   @unique
@@ -41,7 +41,6 @@ model Manager {
   phoneNumber String
   gender      String
   email       String
-  role        String
   User        User     @relation(fields: [idAccount], references: [idAccount])
   idAccount   String   @unique
   createAt    DateTime @default(now())
