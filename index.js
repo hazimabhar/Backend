@@ -364,18 +364,18 @@ app.put("/item/:id", async (req, res)=>{
     }})
   res.json(updateItem)
 })
-//updaestock
-app.put("/updatestock/:id", async (req, res)=>{
+//updatestock
+app.put("/item/updatestock/:id", async (req, res)=>{
   const id = req.params.id
-  const newQuantity = req.body.quantity
-  const updateStock = await prisma.item.update({
+  const newQuantity = req.body.newQuantity
+  const updateStock = await prisma.item.update({ 
     where: {idItem: id }, 
     data: {
-      quantity : newQuantity
+      quantity : newQuantity 
     }})
   res.json(updateStock)
-})
-
+}) 
+  
 app.delete("/item/:id", async (req, res)=>{ 
   const id = req.params.id
   const deleteItem = await prisma.item.delete({where: {idItem:id}})
