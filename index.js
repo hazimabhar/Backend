@@ -327,6 +327,16 @@ app.get("/item/:id", async (req, res)=>{
   })  
   res.json(oneItem)
 })
+app.get('/products', async (req, res) => {
+  const { barcode } = req.query;
+
+  const checkBarcode = await prisma.item.findMany({
+    select: {
+      barcode: true, 
+    }, 
+  })
+      res.json(checkBarcode);
+});
 //getallitem
 app.get("/item", async (req, res)=>{
   const allItem = await prisma.item.findMany({  
@@ -335,12 +345,11 @@ app.get("/item", async (req, res)=>{
     }
   })
   res.json(allItem) 
-})
-
+})      
 app.post("/item", async (req, res)=>{
   const newItem = await prisma.item.create({data: req.body})
   res.json(newItem) 
-})
+}) 
 //updateinfo
 app.put("/item/:id", async (req, res)=>{
   const id = req.params.id
