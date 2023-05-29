@@ -25,9 +25,16 @@ app.get("/", async (req, res)=>{
     })
     res.json(allUsers)
 }) 
-
-
-
+app.get("/nric", async (req,res)=>{
+  const checkedNric = await prisma.user.findMany({
+    select:
+    {
+      icNumber:true 
+    }
+  })
+  res.json(checkedNric)
+})
+ 
 app.post("/", async (req, res)=>{
   const {icNumber,password,role}=req.body
 
@@ -93,7 +100,15 @@ app.get("/worker", async (req, res)=>{
   })
   res.json(allWorker)
 }) 
-
+app.get("/emailworker", async (req, res)=>{
+  const emailWorker = await prisma.worker.findMany({
+    select:
+    {
+      email:true
+    }
+  }) 
+  res.json(emailWorker)
+}) 
 app.post("/worker", async (req, res)=>{
   const newWorker = await prisma.worker.create({data: req.body})
   res.json(newWorker) 
@@ -152,7 +167,15 @@ app.get("/manager", async (req, res)=>{
   }) 
   res.json(allManager) 
 }) 
-
+app.get("/emailmanager", async (req, res)=>{
+  const emailManager = await prisma.manager.findMany({
+    select:
+    {
+      email:true
+    }
+  }) 
+  res.json(emailManager)
+}) 
 app.post("/manager", async (req, res)=>{
   const newManager = await prisma.manager.create({data: req.body})
   res.json(newManager)
@@ -169,7 +192,7 @@ app.put("/manager/:id", async (req, res)=>{
   const newRole = req.body.role
   const updateManager = await prisma.manager.update({
     where: {idManager: id }, 
-    data: {
+    data: { 
       name :newName, 
       // password:newPassword,
       address : newAddress,
@@ -297,7 +320,7 @@ app.get("/item/food",async (req,res)=>{
       where:{
         category : "Makanan"
       },
-      orderBy:{
+      orderBy:{ 
         name:'asc'
       }
     })
@@ -327,9 +350,8 @@ app.get("/item/:id", async (req, res)=>{
   })  
   res.json(oneItem)
 })
-app.get('/products', async (req, res) => {
+app.get('/barcode', async (req, res) => { 
   const { barcode } = req.query;
-
   const checkBarcode = await prisma.item.findMany({
     select: {
       barcode: true, 
@@ -519,6 +541,7 @@ app.get("/:id",async (req,res)=>{
   })
   res.json(oneUser)
 })
+
 
 app.listen (3000, () => {
   console.log("Now listening on port 3000")  
