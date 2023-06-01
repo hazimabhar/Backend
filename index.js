@@ -87,9 +87,7 @@ app.delete("/:id", async (req, res)=>{
   const deleteUser = await prisma.user.delete({where: {idAccount: id }})
   res.json(deleteUser) 
 })
-
- 
- 
+  
 
 //crud worker
 app.get("/worker", async (req, res)=>{
@@ -223,11 +221,26 @@ app.get("/manager/:id",async(req,res)=>{
         User:true
       }
     }
-  )
+  )  
   res.json(oneManager)
 })
   
 //crud item 
+
+
+//getcashier
+app.get("/item/cashier/:barcode", async (req,res)=>{
+  const barcode = req.params.barcode
+  const listItem = await prisma.item.findUnique(
+    {
+      where:
+      {
+        barcode : barcode
+      }
+    }
+  )
+  res.json(listItem)
+})
 
 //getcanned
 app.get("/item/canned",async (req,res)=>{
@@ -340,6 +353,7 @@ app.get("/item/tool",async (req,res)=>{
     })
     res.json(tool)
 })
+
 //getitembyid
 app.get("/item/:id", async (req, res)=>{
   const oneItem = await prisma.item.findUnique({ 
@@ -350,6 +364,8 @@ app.get("/item/:id", async (req, res)=>{
   })  
   res.json(oneItem)
 })
+
+//getbarcodeonly
 app.get('/barcode', async (req, res) => { 
   const { barcode } = req.query;
   const checkBarcode = await prisma.item.findMany({
@@ -358,7 +374,8 @@ app.get('/barcode', async (req, res) => {
     }, 
   })
       res.json(checkBarcode);
-});
+})
+
 //getallitem
 app.get("/item", async (req, res)=>{
   const allItem = await prisma.item.findMany({  
@@ -367,7 +384,8 @@ app.get("/item", async (req, res)=>{
     }
   })
   res.json(allItem) 
-})      
+})   
+//postitem
 app.post("/item", async (req, res)=>{
   const newItem = await prisma.item.create({data: req.body})
   res.json(newItem) 
@@ -406,14 +424,14 @@ app.put("/item/updatestock/:id", async (req, res)=>{
     }})
   res.json(updateStock)
 }) 
-  
+// deleteitem  
 app.delete("/item/:id", async (req, res)=>{ 
   const id = req.params.id
   const deleteItem = await prisma.item.delete({where: {idItem:id}})
   res.json(deleteItem) 
 })
 
-//crud buylist 
+//crud buylist  
 app.get("/buylist", async (req, res)=>{
   const allBuyList = await prisma.buyList.findMany()
   res.json(allBuyList)
@@ -532,6 +550,7 @@ app.delete("/itembuylistuser/:id", async (req, res)=>{
   res.json(deleteItemBuyList) 
 })
 
+//getoneuser
 app.get("/:id",async (req,res)=>{
   const oneUser = await prisma.user.findUnique(
     {
