@@ -424,45 +424,22 @@ app.put("/item/updatestock/:id", async (req, res)=>{
     }})
   res.json(updateStock)
 }) 
-// deleteitem  
+// deleteitem   
 app.delete("/item/:id", async (req, res)=>{ 
   const id = req.params.id
   const deleteItem = await prisma.item.delete({where: {idItem:id}})
   res.json(deleteItem) 
 })
 
-//crud buylist  
-app.get("/buylist", async (req, res)=>{
-  const allBuyList = await prisma.buyList.findMany()
-  res.json(allBuyList)
-})
-
-app.post("/buylist", async (req, res)=>{
-  const newBuyList = await prisma.buyList.create({data: req.body})
-  res.json(newBuyList) 
-})  
  
-app.put("/buylist/:id", async (req, res)=>{
-  const id = req.params.id
-  const newBuyList = req.body.buyList
-  const updateBuyList = await prisma.buyList.update({
-    where: {idBuyList: id }, 
-    data: {
-      buyList :newBuyList,
-    }})
-  res.json(updateBuyList)
-})
-
-app.delete("/buylist/:id", async (req, res)=>{ 
-  const id = req.params.id
-  const deleteBuyList = await prisma.buyList.delete({where: {idItem:id}})
-  res.json(deleteBuyList) 
-})
-
-
 //crud sale
 app.get("/sale", async (req, res)=>{
-  const allSale = await prisma.sale.findMany()
+  const allSale = await prisma.sale.findMany({
+    include :{
+      User:true,
+      ListItem: true,
+    }
+  })
   res.json(allSale)
 })  
 
@@ -490,16 +467,40 @@ app.delete("/sale/:id", async (req, res)=>{
   res.json(deleteSale) 
 }) 
  
-//crud report
+//crud report 
 app.get("/report", async (req, res)=>{ 
-  const allReport = await prisma.report.findMany()
+  const allReport = await prisma.report.findMany(
+    {
+      include:
+      {
+        Sale:{
+          include:{
+                ListItem:{
+                  include:{
+                    Item:true,
+                  }
+                }
+          }
+        }
+      }
+    }
+  )
   res.json(allReport)
-})
- 
-app.post("/report", async (req, res)=>{
-  const newReport = await prisma.report.create({data: req.body})
-  res.json(newReport)
 }) 
+ 
+app.post('/report', async (req, res) => { 
+  const {Sale, numberSale, saleRevenue} =req.body
+  const newReport = await prisma.report.create({
+  data:
+  {
+    Sale,
+    numberSale,
+    saleRevenue
+  } 
+  })
+  res.json(newReport)   
+}); 
+
   
 app.put("/report/:id", async (req, res)=>{
   const id = req.params.id
@@ -520,36 +521,68 @@ app.delete("/report/:id", async (req, res)=>{
   res.json(deleteReport) 
 })
 
-//itembuylist
-app.get("/itembuylistuser", async (req, res)=>{
-  const allItemBuyList = await prisma.itembuylistuser.findMany()
+//listitem
+app.get("/listitem", async (req, res)=>{
+  const allItemBuyList = await prisma.listItem.findMany()
   res.json(allItemBuyList)
 })
  
-app.post("/itembuylistuser", async (req, res)=>{
-  const newItemBuyList = await prisma.ItemBuyListUser.create({data: req.body})
+app.post("/listitem", async (req, res)=>{
+  const newItemBuyList = await prisma.listItem.create({data: req.body})
   res.json(newItemBuyList)
 })
  
-app.put("/itembuylistuser/:id", async (req, res)=>{
+// app.put("/itembuylistuser/:id", async (req, res)=>{
+//   const id = req.params.id
+//   const newNumberSale = req.body.numberSale
+//   const newSaleRevenue = req.body.saleRevenue
+//   const updateReport = await prisma.itembuylistuser.update({
+//     where: {idReport: id }, 
+//     data: {
+//       numberSale :newNumberSale,
+//       saleRevenue : newSaleRevenue,
+//     }})
+//   res.json(updateReport)
+// })
+ 
+app.delete("/listitem/:id", async (req, res)=>{ 
   const id = req.params.id
-  const newNumberSale = req.body.numberSale
-  const newSaleRevenue = req.body.saleRevenue
-  const updateReport = await prisma.itembuylistuser.update({
-    where: {idReport: id }, 
-    data: {
-      numberSale :newNumberSale,
-      saleRevenue : newSaleRevenue,
-    }})
-  res.json(updateReport)
-})
-
-app.delete("/itembuylistuser/:id", async (req, res)=>{ 
-  const id = req.params.id
-  const deleteItemBuyList = await prisma.itembuylistuser.delete({where: {idBuyList:id}})
+  const deleteItemBuyList = await prisma.listItem.delete({where: {idBuyList:id}})
   res.json(deleteItemBuyList) 
 })
 
+app.post("/salebuylist",async (req,res)=>{
+  const { saleData, itemData } =req.body
+  console.log(saleData)  
+  console.log(itemData)
+
+  const createSale = await prisma.sale.create({
+    data:
+    {
+      price : saleData.price,
+      paymentMethod: saleData.paymentMethod,
+      idAccount : saleData.idWorker, 
+      idReport: saleData.idReport
+    } 
+  })
+  const createListItem = await Promise.all(
+    itemData.idItem.map(async (id) => { 
+      const ListItem = await prisma.list.create({
+        data: {
+          idItem: id,
+          idSale: createSale.idSale,
+          quantity: quantity,
+          totalPrice: totalPrice
+        },
+      })
+      return ListItem;
+    }) 
+  )
+res.json({
+  createSale,
+  createListItem
+})
+})
 //getoneuser
 app.get("/:id",async (req,res)=>{
   const oneUser = await prisma.user.findUnique(
@@ -560,7 +593,6 @@ app.get("/:id",async (req,res)=>{
   })
   res.json(oneUser)
 })
-
 
 app.listen (3000, () => {
   console.log("Now listening on port 3000")  

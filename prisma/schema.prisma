@@ -14,10 +14,9 @@ model User {
   role        String
   Worker    Worker?
   Manager   Manager?
+  Sale      Sale[]
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
-
-
 }
  
 model Worker {
@@ -27,7 +26,6 @@ model Worker {
   phoneNumber String
   gender      String
   email       String
-  Sale      Sale[]
   User        User     @relation(fields: [idAccount], references: [idAccount])
   idAccount   String   @unique
   createAt    DateTime @default(now())
@@ -47,15 +45,16 @@ model Manager {
   updateAt    DateTime @updatedAt
 }
 
-model ItemBuyListUser {
+model ListItem {
+  idItemBuyListUser String @id @default(uuid())
+  quantity Int
+  totalPrice Float 
   Item      Item     @relation(fields: [idItem], references: [idItem])
-  idItem    String   @unique
-  BuyList   BuyList  @relation(fields: [idBuyList], references: [idBuyList])
-  idBuyList String   @unique
+  idItem    String   
+  Sale Sale @relation(fields: [idSale], references: [idSale])
+  idSale String            
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
-
-  @@id([idItem, idBuyList])
 }
 
 model Item {
@@ -67,36 +66,25 @@ model Item {
   weight          String
   unit            String
   quantity        Int
-  BuyList         BuyList[]
   createdAt       DateTime         @default(now())
   updateAt        DateTime         @updatedAt
-  ItemBuyListUser ItemBuyListUser?
-}
-
-model BuyList {
-  idBuyList       String           @id @default(uuid())
-  Item            Item[]
-  Sale            Sale             @relation(fields: [idSale], references: [idSale])
-  idSale          String           @unique
-  createdAt       DateTime         @default(now())
-  updateAt        DateTime         @updatedAt
-  ItemBuyListUser ItemBuyListUser?
+  ListItem ListItem[]
 }
 
 model Sale {
   idSale        String    @id @default(uuid())
   price         Float
   paymentMethod String
-  BuyList       BuyList[]
-  Worker          Worker      @relation(fields: [idWorker], references: [idWorker])
-  idWorker     String    @unique
+  User        User     @relation(fields: [idAccount], references: [idAccount])
+  idAccount   String   @unique
   Report        Report    @relation(fields: [idReport], references: [idReport])
   idReport      String    @unique
   createdAt     DateTime  @default(now())
   updateAt      DateTime  @updatedAt
+  ListItem ListItem[]
 }
 
-model Report {
+model Report {  
   idReport    String   @id @default(uuid())
   Sale        Sale[]
   numberSale  Int
