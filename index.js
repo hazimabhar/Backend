@@ -554,7 +554,7 @@ app.delete("/listitem/:id", async (req, res)=>{
 app.post("/salebuylist",async (req,res)=>{
   const { saleData, itemData } =req.body
   console.log(saleData)  
-  console.log(itemData)
+  console.log(itemData) 
 
   const createSale = await prisma.sale.create({
     data:
@@ -566,15 +566,19 @@ app.post("/salebuylist",async (req,res)=>{
     } 
   })
   const createListItem = await Promise.all(
-    itemData.idItem.map(async (id) => { 
-      const ListItem = await prisma.list.create({
+    itemData.idItem.map(async (id,index) => { 
+
+      const quantity = itemData.quantity[index]
+      const totalPrice = itemData.totalPrice[index]
+
+      const ListItem = await prisma.listItem.create({
         data: {
           idItem: id,
           idSale: createSale.idSale,
-          quantity: quantity,
+          quantity: quantity,  
           totalPrice: totalPrice
-        },
-      })
+        }, 
+      }) 
       return ListItem;
     }) 
   )
@@ -582,7 +586,7 @@ res.json({
   createSale,
   createListItem
 })
-})
+}) 
 //getoneuser
 app.get("/:id",async (req,res)=>{
   const oneUser = await prisma.user.findUnique(

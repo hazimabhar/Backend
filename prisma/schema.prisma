@@ -46,7 +46,7 @@ model Manager {
 }
 
 model ListItem {
-  idItemBuyListUser String @id @default(uuid())
+  idListItem String @id @default(uuid())
   quantity Int
   totalPrice Float 
   Item      Item     @relation(fields: [idItem], references: [idItem])
@@ -76,9 +76,9 @@ model Sale {
   price         Float
   paymentMethod String
   User        User     @relation(fields: [idAccount], references: [idAccount])
-  idAccount   String   @unique
+  idAccount   String   
   Report        Report    @relation(fields: [idReport], references: [idReport])
-  idReport      String    @unique
+  idReport      String    
   createdAt     DateTime  @default(now())
   updateAt      DateTime  @updatedAt
   ListItem ListItem[]
