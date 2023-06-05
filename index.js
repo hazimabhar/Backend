@@ -365,6 +365,29 @@ app.get("/item/:id", async (req, res)=>{
   res.json(oneItem)
 })
 
+//getitemcashier
+app.get("/item/quantity/:idItem", async (req,res)=>{
+  const {idItem} = req.params
+  const idItems = idItem.split(",");
+
+  console.log(idItem)
+
+  const findItem = await Promise.all(
+    idItems.map((itemId)=> prisma.item.findUnique({
+      where:
+      {
+        idItem:itemId 
+      }, 
+      select: {
+        idItem: true,  
+        quantity: true, 
+      }, 
+    })) 
+
+  )
+  res.json(findItem)
+})
+
 //getbarcodeonly
 app.get('/barcode', async (req, res) => { 
   const { barcode } = req.query;
@@ -424,6 +447,20 @@ app.put("/item/updatestock/:id", async (req, res)=>{
     }})
   res.json(updateStock)
 }) 
+//updatequantity
+app.put("/item/cashier/updatequantity",async(req,res)=>{
+  const newQuantity = req.body;
+  for (const idItem in newQuantity) {
+    const updatedQuantity = newQuantity[idItem];
+
+    await prisma.item.update({
+      where: { idItem },
+      data: { quantity: updatedQuantity },
+    });
+  }
+
+  res.send('Quantities updated successfully');
+})
 // deleteitem   
 app.delete("/item/:id", async (req, res)=>{ 
   const id = req.params.id
@@ -553,8 +590,6 @@ app.delete("/listitem/:id", async (req, res)=>{
 
 app.post("/salebuylist",async (req,res)=>{
   const { saleData, itemData } =req.body
-  console.log(saleData)  
-  console.log(itemData) 
 
   const createSale = await prisma.sale.create({
     data:
