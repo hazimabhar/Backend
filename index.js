@@ -5,6 +5,7 @@ const cors = require ('cors')
 const bcrypt = require('bcrypt')
   
 const prisma = new PrismaClient()
+const cron = require('node-cron');
 
 
 app.use(cors({
@@ -370,8 +371,6 @@ app.get("/item/quantity/:idItem", async (req,res)=>{
   const {idItem} = req.params
   const idItems = idItem.split(",");
 
-  console.log(idItem)
-
   const findItem = await Promise.all(
     idItems.map((itemId)=> prisma.item.findUnique({
       where:
@@ -506,8 +505,16 @@ app.delete("/sale/:id", async (req, res)=>{
  
 //crud report 
 app.get("/report", async (req, res)=>{ 
-  const allReport = await prisma.report.findMany(
+  const today = new Date();
+
+  const fullReport = await prisma.report.findMany(
     {
+      where: {
+        createdAt: {
+          gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+          lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+        }
+      },
       include:
       {
         Sale:{
@@ -522,7 +529,22 @@ app.get("/report", async (req, res)=>{
       }
     }
   )
-  res.json(allReport)
+  res.json(fullReport)
+}) 
+
+app.get("/report/today", async(req,res)=>{
+  const today = new Date();
+  const todayReport = await prisma.report.findMany(
+    {
+      where: {
+        createdAt: {
+          gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
+          lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+        }
+      },
+    }
+  )
+  res.json(todayReport)
 }) 
  
 app.post('/report', async (req, res) => { 
@@ -631,6 +653,27 @@ app.get("/:id",async (req,res)=>{
       } 
   })
   res.json(oneUser)
+})
+
+
+//generatereport
+async function generateReport(){
+
+  const createdReport = await prisma.report.create({
+    data: {
+      numberSale: 0, // Set numberSale to 0
+      saleRevenue: 0, // Set saleRevenue to 0
+    }
+  })
+  return createdReport
+}
+
+cron.schedule('0 0 * * *', async () => {
+  try { 
+    const report = await generateReport()
+  } catch (error) {
+    console.error('Error generating the report:', error)
+  }
 })
 
 app.listen (3000, () => {
