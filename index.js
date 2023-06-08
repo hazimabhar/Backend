@@ -380,12 +380,45 @@ app.get("/item/quantity/:idItem", async (req,res)=>{
       select: {
         idItem: true,  
         quantity: true, 
+        price:true,
+        name:true
       }, 
     })) 
 
   )
   res.json(findItem)
 })
+//getitemforreport
+app.get("/item/report/:idItem", async (req, res) => {
+  const { idItem } = req.params;
+  const idItems = idItem.split(",");
+  const foundItems = {}; // Cache for storing already found items
+
+  const findItem = await Promise.all(
+    idItems.map(async (itemId) => {
+      if (foundItems[itemId]) {
+        // If item is already found, return it from cache
+        return foundItems[itemId];
+      } else {  
+        const item = await prisma.item.findUnique({
+          where: {
+            idItem: itemId,
+          },
+          select: {
+            idItem: true,
+            quantity: true,
+            price: true,
+            name: true,
+          },
+        });
+        foundItems[itemId] = item; // Cache the found item
+        return item;
+      }
+    })
+  );
+
+  res.json(findItem);
+});
 
 //getbarcodeonly
 app.get('/barcode', async (req, res) => { 
@@ -478,7 +511,31 @@ app.get("/sale", async (req, res)=>{
   })
   res.json(allSale)
 })  
+//getsalebyid
+app.get("/sale/:idSale", async (req,res)=>{
+  const {idSale} = req.params
+  const idSales = idSale.split(",");
 
+  const findSale = await Promise.all(
+    idSales.map((saleId)=> prisma.sale.findUnique({
+      where:
+      {
+        idSale:saleId 
+      }, 
+      select: {
+        ListItem:{
+          select:{
+            idItem:true,
+            quantity:true,
+            totalPrice:true,
+          }
+        }
+      }, 
+    })) 
+
+  )
+  res.json(findSale)
+})
 app.post("/sale", async (req, res)=>{
   const newSale = await prisma.sale.create({data: req.body})
   res.json(newSale)
