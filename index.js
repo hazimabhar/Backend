@@ -660,7 +660,7 @@ app.post("/listitem", async (req, res)=>{
 //     }})
 //   res.json(updateReport)
 // })
- 
+  
 app.delete("/listitem/:id", async (req, res)=>{ 
   const id = req.params.id
   const deleteItemBuyList = await prisma.listItem.delete({where: {idBuyList:id}})
@@ -710,8 +710,25 @@ app.get("/:id",async (req,res)=>{
       } 
   })
   res.json(oneUser)
-})
+}) 
 
+//getusermanybyid
+app.get("/report/user/:idAccount", async (req,res)=>{
+  const {idAccount} = req.params 
+  const idAccounts = idAccount.split(",");
+
+
+  const findUser = await Promise.all(
+    idAccounts.map((idAccount)=> prisma.worker.findUnique({
+      where:
+      {
+        idAccount:idAccount 
+      }, 
+    })) 
+
+  )
+  res.json(findUser)
+})
 
 //generatereport
 async function generateReport(){
@@ -731,7 +748,7 @@ cron.schedule('0 0 * * *', async () => {
   } catch (error) {
     console.error('Error generating the report:', error)
   }
-})
+}) 
 
 app.listen (3000, () => {
   console.log("Now listening on port 3000")  
