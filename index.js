@@ -535,7 +535,7 @@ app.delete("/item/:id", async (req, res) => {
 
   res.status(200).json({ deleteItem, deleteListItems });
 });
- 
+  
  
 //crud sale
 app.get("/sale", async (req, res)=>{
