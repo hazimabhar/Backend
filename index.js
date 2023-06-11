@@ -748,6 +748,61 @@ app.get("/:id",async (req,res)=>{
   res.json(oneUser)
 }) 
 
+//getuserresetpassword
+app.get('/resetpassword/:nric', async (req, res) =>
+ {
+    const user = await prisma.user.findUnique({
+      where: { icNumber : req.params.nric },
+  
+  })
+  if (!user)
+  {
+    return res.status(401).send("Account Not Exist")
+  }
+    res.json(user);
+}) 
+//getworkerrestpassword
+app.get("/resetworker/:id", async (req,res)=>{
+  const oneWorker = await prisma.worker.findUnique({
+    where:{
+      idAccount : req.params.id
+    }
+  })
+  res.json(oneWorker)
+})
+//getmanagerrestpassword
+app.get("/resetmanager/:id", async (req,res)=>{
+  const oneManager = await prisma.manager.findUnique({
+    where:{
+      idAccount : req.params.id
+    }
+  })
+  res.json(oneManager)
+})
+//resetpassworduser
+app.put("/resetpassword/user", async (req, res) => {
+  const { idAccount, password } = req.body;
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const updatedUser = await prisma.user.update({
+      where: {
+        idAccount: idAccount,
+      },
+      data: {
+        password: hashedPassword,
+      },
+    });
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Error updating password");
+  }
+});
+
+
+
 //getusermanybyid
 app.get("/report/user/:idAccount", async (req,res)=>{
   const {idAccount} = req.params 
