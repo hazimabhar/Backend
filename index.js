@@ -243,6 +243,32 @@ app.get("/item/cashier/:barcode", async (req,res)=>{
   res.json(listItem)
 })
 
+//getitemsearch
+app.get("/item/search/:input", async (req, res) => {
+  const input = req.params.input;
+  let listItem;
+  if (isNaN(input)) {
+    // Input is item name
+    listItem = await prisma.item.findFirst({
+      where: {
+        name: input,
+      },
+    });
+  } else {
+    // Input is barcode
+    listItem = await prisma.item.findUnique({
+      where: {
+        barcode: input,
+      }, 
+    });
+  }
+
+  if (listItem) {
+    res.json(listItem);
+  } else {
+    res.status(404).json({ error: "Item not found" });
+  }
+});
 //getcanned
 app.get("/item/canned",async (req,res)=>{
   const canned = await prisma.item.findMany(
@@ -455,6 +481,7 @@ app.put("/item/:id", async (req, res)=>{
   const newWeight = req.body.weight 
   const newUnit = req.body.unit
   const newQuantity = req.body.quantity
+  const newFilePath = req.body.image
   const updateItem = await prisma.item.update({
     where: {idItem: id }, 
     data: {
@@ -464,7 +491,8 @@ app.put("/item/:id", async (req, res)=>{
       barcode : newBarcode,
       weight : newWeight,
       unit: newUnit,
-      quantity : newQuantity
+      quantity : newQuantity,
+      image : newFilePath
     }})
   res.json(updateItem)
 })
@@ -478,8 +506,8 @@ app.put("/item/updatestock/:id", async (req, res)=>{
       quantity : newQuantity 
     }})
   res.json(updateStock)
-}) 
-//updatequantity
+})  
+//updatequantity 
 app.put("/item/cashier/updatequantity",async(req,res)=>{
   const newQuantity = req.body;
   for (const idItem in newQuantity) {
@@ -494,12 +522,20 @@ app.put("/item/cashier/updatequantity",async(req,res)=>{
   res.send('Quantities updated successfully');
 })
 // deleteitem   
-app.delete("/item/:id", async (req, res)=>{ 
-  const id = req.params.id
-  const deleteItem = await prisma.item.delete({where: {idItem:id}})
-  res.json(deleteItem) 
-})
+app.delete("/item/:id", async (req, res) => {
+  const id = req.params.id;
 
+  // Delete the corresponding ListItem records
+  const deleteListItems = await prisma.listItem.deleteMany({
+    where: { idItem: id },
+  }); 
+
+  // Delete the item
+  const deleteItem = await prisma.item.delete({ where: { idItem: id } });
+
+  res.status(200).json({ deleteItem, deleteListItems });
+});
+ 
  
 //crud sale
 app.get("/sale", async (req, res)=>{
@@ -666,7 +702,7 @@ app.delete("/listitem/:id", async (req, res)=>{
   const deleteItemBuyList = await prisma.listItem.delete({where: {idBuyList:id}})
   res.json(deleteItemBuyList) 
 })
-
+ 
 app.post("/salebuylist",async (req,res)=>{
   const { saleData, itemData } =req.body
 
@@ -748,8 +784,8 @@ cron.schedule('0 0 * * *', async () => {
   } catch (error) {
     console.error('Error generating the report:', error)
   }
-}) 
-
+})  
+ 
 app.listen (3000, () => {
   console.log("Now listening on port 3000")  
 })

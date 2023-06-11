@@ -66,6 +66,7 @@ model Item {
   weight          String
   unit            String
   quantity        Int
+  image           String 
   createdAt       DateTime         @default(now())
   updateAt        DateTime         @updatedAt
   ListItem ListItem[]
