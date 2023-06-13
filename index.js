@@ -7,6 +7,8 @@ const bcrypt = require('bcrypt')
 const prisma = new PrismaClient()
 const cron = require('node-cron');
 
+let loginAttempt =0
+
 
 app.use(cors({
   origin:'*'
@@ -55,6 +57,7 @@ app.post("/", async (req, res)=>{
   }
 })
 
+
 app.post("/login", async(req,res)=>{
   const {icNumber,password}=req.body
   const user = await prisma.user.findUnique({
@@ -70,9 +73,15 @@ app.post("/login", async(req,res)=>{
 
   if(!passwordMatch)
   {
+    loginAttempt++
+    if(loginAttempt>3)
+    {
+      return res.status(401).send("Invalid Password. Please reset your password")
+    }
     return res.status(401).send("Invalid Password")
   }
   const userId = user.idAccount 
+  loginAttempt=0
 
   res.send(userId)
 
@@ -240,7 +249,11 @@ app.get("/item/cashier/:barcode", async (req,res)=>{
       }
     }
   )
-  res.json(listItem)
+  if (listItem === null || listItem === undefined) {
+    res.status(404).json({ error: "Item not found" });
+  } else {
+    res.json(listItem);
+  }
 })
 
 //getitemsearch
@@ -269,6 +282,20 @@ app.get("/item/search/:input", async (req, res) => {
     res.status(404).json({ error: "Item not found" });
   }
 });
+app.get("/item/notification", async (req, res)=>{
+  const lowItem = await prisma.item.findMany({  
+    where:
+    {
+      quantity:{
+        lt:6
+      }
+    },
+    orderBy:{ 
+      name:'asc'
+    }
+  })
+  res.json(lowItem) 
+}) 
 //getcanned
 app.get("/item/canned",async (req,res)=>{
   const canned = await prisma.item.findMany(
@@ -465,7 +492,8 @@ app.get("/item", async (req, res)=>{
     }
   })
   res.json(allItem) 
-})   
+})
+
 //postitem
 app.post("/item", async (req, res)=>{
   const newItem = await prisma.item.create({data: req.body})
