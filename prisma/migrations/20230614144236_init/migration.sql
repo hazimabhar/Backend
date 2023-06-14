@@ -63,8 +63,8 @@ CREATE TABLE `Item` (
     `category` VARCHAR(191) NOT NULL,
     `price` DOUBLE NOT NULL,
     `barcode` VARCHAR(191) NOT NULL,
-    `weight` VARCHAR(191) NOT NULL,
-    `unit` VARCHAR(191) NOT NULL,
+    `weight` VARCHAR(191) NULL,
+    `unit` VARCHAR(191) NULL,
     `quantity` INTEGER NOT NULL,
     `image` VARCHAR(191) NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
@@ -92,7 +92,9 @@ CREATE TABLE `Report` (
     `idReport` VARCHAR(191) NOT NULL,
     `numberSale` INTEGER NOT NULL,
     `saleRevenue` DOUBLE NOT NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `filePath` VARCHAR(191) NOT NULL,
+    `fileName` VARCHAR(191) NOT NULL,
+    `createdAt` VARCHAR(191) NOT NULL,
     `updateAt` DATETIME(3) NOT NULL,
 
     PRIMARY KEY (`idReport`)
