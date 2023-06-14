@@ -3,7 +3,7 @@ const app = express()
 const {PrismaClient} = require ("@prisma/client")
 const cors = require ('cors')
 const bcrypt = require('bcrypt')
-const { getMalaysiaDateTime } = require("datetimeUtils");
+const { getMalaysiaDateTime } = require("./datetimeUtils");
 
 const prisma = new PrismaClient()
 const cron = require('node-cron');
