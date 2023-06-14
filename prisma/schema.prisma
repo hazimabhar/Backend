@@ -63,8 +63,8 @@ model Item {
   category        String
   price           Float
   barcode         String           @unique
-  weight          String
-  unit            String
+  weight          String?
+  unit            String?
   quantity        Int
   image           String 
   createdAt       DateTime         @default(now())
@@ -90,6 +90,8 @@ model Report {
   Sale        Sale[]
   numberSale  Int
   saleRevenue Float
-  createdAt   DateTime @default(now())
+  filePath    String
+  fileName    String
+  createdAt   String
   updateAt    DateTime @updatedAt
 }

@@ -3,7 +3,8 @@ const app = express()
 const {PrismaClient} = require ("@prisma/client")
 const cors = require ('cors')
 const bcrypt = require('bcrypt')
-  
+const { getMalaysiaDateTime } = require("../Backend/datetimeUtils");
+
 const prisma = new PrismaClient()
 const cron = require('node-cron');
 
@@ -14,6 +15,7 @@ app.use(cors({
   origin:'*'
 }))
 app.use(express.json())
+
 
  
 //crud user
@@ -89,7 +91,7 @@ app.post("/login", async(req,res)=>{
   
 app.put("/:id", async (req, res)=>{
   const id = req.params.id
-  res.json(updateUser)
+  res.json(updateUser) 
 }) 
  
 app.delete("/:id", async (req, res)=>{
@@ -253,8 +255,8 @@ app.get("/item/cashier/:barcode", async (req,res)=>{
     res.status(404).json({ error: "Item not found" });
   } else {
     res.json(listItem);
-  }
-})
+  }  
+}) 
 
 //getitemsearch
 app.get("/item/search/:input", async (req, res) => {
@@ -625,6 +627,12 @@ app.delete("/sale/:id", async (req, res)=>{
 }) 
  
 //crud report 
+//getallreport 
+app.get("/allreport", async (req, res)=>{ 
+  const fullReport = await prisma.report.findMany(); // Assuming you have a Prisma client instance named "prisma" configured properly
+  res.json(fullReport);
+}) 
+
 app.get("/report", async (req, res)=>{ 
   const today = new Date();
 
@@ -681,7 +689,7 @@ app.post('/report', async (req, res) => {
   res.json(newReport)   
 }); 
 
-  
+//insertnumbersaleandsalerevenue
 app.put("/report/:id", async (req, res)=>{
   const id = req.params.id
   const newNumberSale = req.body.numberSale
@@ -694,7 +702,19 @@ app.put("/report/:id", async (req, res)=>{
     }})
   res.json(updateReport)
 })
-
+//insertreportpdf
+app.put("/report/file/:id", async (req, res)=>{
+  const id = req.params.id  
+  const newFilePath = req.body.filePath
+  const newFileName = req.body.fileName
+  const updateReport = await prisma.report.update({
+    where: {idReport: id }, 
+    data: {
+      filePath : newFilePath,
+      fileName : newFileName
+    }})
+  res.json(updateReport)
+})
 app.delete("/report/:id", async (req, res)=>{ 
   const id = req.params.id
   const deleteReport = await prisma.report.delete({where: {idReport:id}})
@@ -830,7 +850,6 @@ app.put("/resetpassword/user", async (req, res) => {
 });
 
 
-
 //getusermanybyid
 app.get("/report/user/:idAccount", async (req,res)=>{
   const {idAccount} = req.params 
@@ -852,10 +871,14 @@ app.get("/report/user/:idAccount", async (req,res)=>{
 //generatereport
 async function generateReport(){
 
+  const createdAt = getMalaysiaDateTime();
   const createdReport = await prisma.report.create({
     data: {
       numberSale: 0, // Set numberSale to 0
       saleRevenue: 0, // Set saleRevenue to 0
+      fileName:'',  
+      filePath:'',
+      createdAt: createdAt
     }
   })
   return createdReport
@@ -867,7 +890,8 @@ cron.schedule('0 0 * * *', async () => {
   } catch (error) {
     console.error('Error generating the report:', error)
   }
-})  
+}) 
+
  
 app.listen (3000, () => {
   console.log("Now listening on port 3000")  
