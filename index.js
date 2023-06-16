@@ -251,7 +251,7 @@ app.get("/item/cashier/:barcode", async (req,res)=>{
       }
     }
   )
-  if (listItem === null || listItem === undefined) {
+  if (listItem === null || listItem === undefined || listItem === '') {
     res.status(404).json({ error: "Item not found" });
   } else {
     res.json(listItem);
@@ -884,7 +884,7 @@ async function generateReport(){
   return createdReport
 }
 
-cron.schedule('45 2 * * *', async () => {
+cron.schedule('47 2 * * *', async () => {
   try { 
     const report = await generateReport()
   } catch (error) {
