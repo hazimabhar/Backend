@@ -642,6 +642,10 @@ app.get("/report/today", async (req, res) => {
     },
   });
 
+  console.log(today),
+  console.log(startDate)
+  console.log(endDate)
+  console.log(todayReport)
   res.json(todayReport);
 });
 
