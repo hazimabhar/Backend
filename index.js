@@ -629,13 +629,13 @@ app.delete("/sale/:id", async (req, res)=>{
 //crud report 
 //getallreport 
 app.get("/report/today", async(req,res)=>{
-  const today = new Date();
+  const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
   const todayReport = await prisma.report.findMany(
     {
       where: {
         createdAt: {
-          gte: new Date(today.getFullYear(), today.getMonth(), today.getDate()),
-          lt: new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1)
+          gte: todayUTC,
+        lt: new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000), // Add 24 hours in milliseconds for the next day
         }
       },
     }
