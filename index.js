@@ -497,10 +497,18 @@ app.get("/item", async (req, res)=>{
 })
 
 //postitem
-app.post("/item", async (req, res)=>{
-  const newItem = await prisma.item.create({data: req.body})
-  res.json(newItem) 
-}) 
+app.post("/item", async (req, res) => {
+  const { weight, unit, ...rest } = req.body;
+
+  const newItemData = {
+    ...rest,
+    weight: weight || null,
+    unit: unit || null,
+  };
+
+  const newItem = await prisma.item.create({ data: newItemData });
+  res.json(newItem);
+});
 //updateinfo
 app.put("/item/:id", async (req, res)=>{
   const id = req.params.id
