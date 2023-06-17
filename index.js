@@ -870,7 +870,6 @@ app.get("/report/user/:idAccount", async (req,res)=>{
 
 //generatereport
 async function generateReport(){
-
   // const createdAt = getMalaysiaDateTime();
   const createdReport = await prisma.report.create({
     data: {
@@ -884,7 +883,7 @@ async function generateReport(){
   return createdReport
 }
 
-cron.schedule('35 05 * * *', async () => {
+cron.schedule('00 08 * * *', async () => {
   try { 
     const report = await generateReport()
   } catch (error) {
