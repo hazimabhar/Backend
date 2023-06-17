@@ -628,21 +628,22 @@ app.delete("/sale/:id", async (req, res)=>{
  
 //crud report 
 //getallreport 
-app.get("/report/today", async(req,res)=>{
+app.get("/report/today", async (req, res) => {
   const today = new Date();
-  const todayUTC = new Date(Date.UTC(today.getFullYear(), today.getMonth(), today.getDate()));
-  const todayReport = await prisma.report.findMany(
-    {
-      where: {
-        createdAt: {
-          gte: todayUTC,
-          lt: new Date(todayUTC.getTime() + 24 * 60 * 60 * 1000), // Add 24 hours in milliseconds for the next day
-        }
+  const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+
+  const todayReport = await prisma.report.findMany({
+    where: {
+      createdAt: {
+        gte: startDate.toISOString(),
+        lt: endDate.toISOString(),
       },
-    }
-  )
-  res.json(todayReport)
-}) 
+    },
+  });
+
+  res.json(todayReport);
+});
 app.get("/allreport", async (req, res)=>{ 
   const fullReport = await prisma.report.findMany(); // Assuming you have a Prisma client instance named "prisma" configured properly
   res.json(fullReport);
