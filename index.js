@@ -674,8 +674,6 @@ app.get("/report", async (req, res)=>{
   )
   res.json(fullReport)
 }) 
-
-
  
 app.post('/report', async (req, res) => { 
   const {Sale, numberSale, saleRevenue} =req.body
