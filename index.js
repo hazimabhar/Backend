@@ -644,10 +644,6 @@ app.get("/report/today", async (req, res) => {
 
   res.json(todayReport);
 });
-app.get("/allreport", async (req, res)=>{ 
-  const fullReport = await prisma.report.findMany(); // Assuming you have a Prisma client instance named "prisma" configured properly
-  res.json(fullReport);
-}) 
 
 app.get("/report", async (req, res)=>{ 
   const today = new Date();
@@ -721,6 +717,10 @@ app.delete("/report/:id", async (req, res)=>{
   const deleteReport = await prisma.report.delete({where: {idReport:id}})
   res.json(deleteReport) 
 })
+app.get("/allreport", async (req, res)=>{ 
+  const fullReport = await prisma.report.findMany(); // Assuming you have a Prisma client instance named "prisma" configured properly
+  res.json(fullReport);
+}) 
 
 //listitem
 app.get("/listitem", async (req, res)=>{
