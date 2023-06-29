@@ -147,12 +147,46 @@ app.put("/worker/:id", async (req, res)=>{
   res.json(updateWorker)
 })
 
-app.delete("/worker/:id", async (req, res)=>{  
-  const idWorker = req.params.id
-  const deleteWorker = await prisma.worker.delete({where: {idWorker:idWorker}})
-  const deleteUser = await prisma.user.delete({where:{idAccount:deleteWorker.idAccount}})
-  res.json(deleteWorker)
-})
+// app.delete("/worker/:id", async (req, res)=>{  
+//   const idWorker = req.params.id
+//   const deleteWorker = await prisma.worker.delete({where: {idWorker:idWorker}})
+//   const deleteUser = await prisma.user.delete({where:{idAccount:deleteWorker.idAccount}})
+//   res.json(deleteWorker)
+// })
+
+app.delete("/worker/:id", async (req, res) => {
+  const idWorker = req.params.id;
+
+  // Find the worker to be deleted
+  const deleteWorker = await prisma.worker.delete({
+    where: { idWorker: idWorker }
+  });
+
+  // Find the sales associated with the worker's user
+  const userSales = await prisma.sale.findMany({
+    where: { idAccount: deleteWorker.idAccount }
+  });
+
+  // Collect the IDs of the sales to be deleted
+  const saleIds = userSales.map(sale => sale.idSale);
+
+  // Delete the list item data associated with the sales
+  const deleteListItems = await prisma.listItem.deleteMany({
+    where: { idSale: { in: saleIds } }
+  });
+
+  // Delete the sale data associated with the user
+  const deleteSales = await prisma.sale.deleteMany({
+    where: { idAccount: deleteWorker.idAccount }
+  });
+
+  // Find the user associated with the worker
+  const deleteUser = await prisma.user.delete({
+    where: { idAccount: deleteWorker.idAccount }
+  });
+
+  res.json(deleteWorker);
+});
 
 app.get("/worker/:id", async (req,res)=>{
   const oneWorker = await prisma.worker.findUnique({
@@ -908,7 +942,7 @@ async function generateReport(){
   return createdReport
 }
 
-cron.schedule('30 1 * * *', async () => {
+cron.schedule('35 1 * * *', async () => {
   try { 
     const report = await generateReport()
   } catch (error) {
