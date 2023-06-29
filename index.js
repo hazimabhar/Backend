@@ -941,7 +941,7 @@ async function generateReport(){
   return createdReport
 }
 
-cron.schedule('0 0 * * *', async () => {
+cron.schedule('5 9 * * *', async () => {
   try { 
     const report = await generateReport()
   } catch (error) {
