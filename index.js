@@ -894,7 +894,7 @@ app.get("/report/user/:idAccount", async (req,res)=>{
 
 //generatereport
 async function generateReport(){
-  const createdAt = new Date();
+  const createdAt = new Date().toISOString();
   const createdReport = await prisma.report.create({
     data: {
       numberSale: 0, // Set numberSale to 0
@@ -907,7 +907,7 @@ async function generateReport(){
   return createdReport
 }
 
-cron.schedule('55 0 * * *', async () => {
+cron.schedule('0 1 * * *', async () => {
   try { 
     const report = await generateReport()
   } catch (error) {
