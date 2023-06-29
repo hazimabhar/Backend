@@ -92,6 +92,6 @@ model Report {
   saleRevenue Float
   filePath    String
   fileName    String
-  createdAt   DateTime @default(now())
+  createdAt   String
   updateAt    DateTime @updatedAt
 }

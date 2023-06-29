@@ -928,15 +928,14 @@ app.get("/report/user/:idAccount", async (req,res)=>{
 
 //generatereport
 async function generateReport(){
-  // const createdAt = new Date();
-  // const createdAtString = createdAt.toISOString();
+  const createdAt = getMalaysiaDateTime()
   const createdReport = await prisma.report.create({
     data: {
       numberSale: 0, // Set numberSale to 0
       saleRevenue: 0, // Set saleRevenue to 0
       fileName:'',  
       filePath:'',
-      // createdAt: createdAtString
+      createdAt: createdAt
     }
   })
   return createdReport
