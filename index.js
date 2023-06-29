@@ -675,15 +675,11 @@ app.get("/report/today", async (req, res) => {
   const startDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const endDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-  // Adjust start and end dates to match the format of the 'createdAt' field
-  const startDateFormatted = startDate.toISOString().split('T')[0] + ' 00:00:00';
-  const endDateFormatted = endDate.toISOString().split('T')[0] + ' 00:00:00';
-
   const todayReport = await prisma.report.findMany({
     where: {
       createdAt: {
-        gte: startDateFormatted,
-        lt: endDateFormatted,
+        gte: startDate,
+        lt: endDate,
       },
     },
   });
