@@ -1,5 +1,5 @@
 -- CreateTable
-CREATE TABLE `User` (
+CREATE TABLE `user` (
     `idAccount` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
     `icNumber` VARCHAR(191) NOT NULL,
@@ -7,12 +7,12 @@ CREATE TABLE `User` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `User_icNumber_key`(`icNumber`),
+    UNIQUE INDEX `user_icNumber_key`(`icNumber`),
     PRIMARY KEY (`idAccount`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Worker` (
+CREATE TABLE `worker` (
     `idWorker` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `address` VARCHAR(191) NOT NULL,
@@ -23,12 +23,12 @@ CREATE TABLE `Worker` (
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Worker_idAccount_key`(`idAccount`),
+    UNIQUE INDEX `worker_idAccount_key`(`idAccount`),
     PRIMARY KEY (`idWorker`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Manager` (
+CREATE TABLE `manager` (
     `idManager` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `address` VARCHAR(191) NOT NULL,
@@ -39,12 +39,12 @@ CREATE TABLE `Manager` (
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Manager_idAccount_key`(`idAccount`),
+    UNIQUE INDEX `manager_idAccount_key`(`idAccount`),
     PRIMARY KEY (`idManager`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `ListItem` (
+CREATE TABLE `listitem` (
     `idListItem` VARCHAR(191) NOT NULL,
     `quantity` INTEGER NOT NULL,
     `totalPrice` DOUBLE NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE `ListItem` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Item` (
+CREATE TABLE `item` (
     `idItem` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `category` VARCHAR(191) NOT NULL,
@@ -70,12 +70,12 @@ CREATE TABLE `Item` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Item_barcode_key`(`barcode`),
+    UNIQUE INDEX `item_barcode_key`(`barcode`),
     PRIMARY KEY (`idItem`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Sale` (
+CREATE TABLE `sale` (
     `idSale` VARCHAR(191) NOT NULL,
     `price` DOUBLE NOT NULL,
     `paymentMethod` VARCHAR(191) NOT NULL,
@@ -88,7 +88,7 @@ CREATE TABLE `Sale` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Report` (
+CREATE TABLE `report` (
     `idReport` VARCHAR(191) NOT NULL,
     `numberSale` INTEGER NOT NULL,
     `saleRevenue` DOUBLE NOT NULL,
@@ -101,19 +101,19 @@ CREATE TABLE `Report` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `Worker` ADD CONSTRAINT `Worker_idAccount_fkey` FOREIGN KEY (`idAccount`) REFERENCES `User`(`idAccount`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `worker` ADD CONSTRAINT `worker_idAccount_fkey` FOREIGN KEY (`idAccount`) REFERENCES `user`(`idAccount`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Manager` ADD CONSTRAINT `Manager_idAccount_fkey` FOREIGN KEY (`idAccount`) REFERENCES `User`(`idAccount`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `manager` ADD CONSTRAINT `manager_idAccount_fkey` FOREIGN KEY (`idAccount`) REFERENCES `user`(`idAccount`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `ListItem` ADD CONSTRAINT `ListItem_idItem_fkey` FOREIGN KEY (`idItem`) REFERENCES `Item`(`idItem`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `listitem` ADD CONSTRAINT `listitem_idItem_fkey` FOREIGN KEY (`idItem`) REFERENCES `item`(`idItem`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `ListItem` ADD CONSTRAINT `ListItem_idSale_fkey` FOREIGN KEY (`idSale`) REFERENCES `Sale`(`idSale`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `listitem` ADD CONSTRAINT `listitem_idSale_fkey` FOREIGN KEY (`idSale`) REFERENCES `sale`(`idSale`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Sale` ADD CONSTRAINT `Sale_idAccount_fkey` FOREIGN KEY (`idAccount`) REFERENCES `User`(`idAccount`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `sale` ADD CONSTRAINT `sale_idAccount_fkey` FOREIGN KEY (`idAccount`) REFERENCES `user`(`idAccount`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Sale` ADD CONSTRAINT `Sale_idReport_fkey` FOREIGN KEY (`idReport`) REFERENCES `Report`(`idReport`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `sale` ADD CONSTRAINT `sale_idReport_fkey` FOREIGN KEY (`idReport`) REFERENCES `report`(`idReport`) ON DELETE RESTRICT ON UPDATE CASCADE;
