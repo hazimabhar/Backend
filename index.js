@@ -10,6 +10,7 @@ const cron = require('node-cron');
 
 let loginAttempt =0
 
+app.use(cors({ origin: '*' }));
 
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
