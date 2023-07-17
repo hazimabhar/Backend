@@ -10,9 +10,9 @@ const { getMalaysiaDateTime } = require("./datetimeUtils");
 let loginAttempt =0
 
 
-// app.use(cors({
-//   origin:'*'
-// }))
+app.use(cors({
+  origin:'*'
+}))
 
 // app.use(cors({ origin: '*' }));
 
@@ -24,19 +24,19 @@ let loginAttempt =0
 //     next();
 //   });
 
-const allowedOrigins = ['https://kedairuncit.onrender.com', 'https://sistemkedairuncit.onrender.com'];
+// const allowedOrigins = ['https://kedairuncit.onrender.com', 'https://sistemkedairuncit.onrender.com'];
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+// app.use(cors({
+//   origin: function (origin, callback) {
+//     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+//   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization'],
+// }));
 
 
 const prisma = new PrismaClient()
