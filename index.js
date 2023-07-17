@@ -5,8 +5,7 @@ const cors = require ('cors')
 const bcrypt = require('bcrypt')
 const { getMalaysiaDateTime } = require("./datetimeUtils");
 
-const prisma = new PrismaClient()
-const cron = require('node-cron');
+
 
 let loginAttempt =0
 
@@ -25,7 +24,9 @@ app.use((req, res, next) => {
     next();
   });
 
-  
+const prisma = new PrismaClient()
+const cron = require('node-cron');
+
 app.use(express.json())
 
 
