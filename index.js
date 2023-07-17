@@ -5,7 +5,8 @@ const cors = require ('cors')
 const bcrypt = require('bcrypt')
 const { getMalaysiaDateTime } = require("./datetimeUtils");
 
-
+const prisma = new PrismaClient()
+const cron = require('node-cron');
 
 let loginAttempt =0
 
@@ -39,8 +40,7 @@ app.use(cors({
 // }));
 
 
-const prisma = new PrismaClient()
-const cron = require('node-cron');
+
 
 app.use(express.json())
 
@@ -974,3 +974,7 @@ cron.schedule('30 0 * * *', async () => {
 app.listen (3000, () => {
   console.log("Now listening on port 3000")  
 })
+
+process.on("beforeExit", () => {
+  prisma.$disconnect();
+});
