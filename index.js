@@ -199,7 +199,7 @@ app.delete("/worker/:id", async (req, res) => {
   const saleIds = userSales.map(sale => sale.idSale);
 
   // Delete the list item data associated with the sales
-  const deleteListItems = await prisma.listitem.deleteMany({
+  const deleteListItems = await prisma.listItem.deleteMany({
     where: { idSale: { in: saleIds } }
   });
 
@@ -626,7 +626,7 @@ app.delete("/item/:id", async (req, res) => {
   const id = req.params.id;
 
   // Delete the corresponding ListItem records
-  const deleteListItems = await prisma.listitem.deleteMany({
+  const deleteListItems = await prisma.listItem.deleteMany({
     where: { idItem: id },
   }); 
 
@@ -641,8 +641,8 @@ app.delete("/item/:id", async (req, res) => {
 app.get("/sale", async (req, res)=>{
   const allSale = await prisma.sale.findMany({
     include :{
-      user:true,
-      listitem: true,
+      User:true,
+      ListItem: true,
     }
   })
   res.json(allSale)
@@ -659,7 +659,7 @@ app.get("/sale/:idSale", async (req,res)=>{
         idSale:saleId 
       }, 
       select: {
-        listitem:{
+        ListItem:{
           select:{
             idItem:true,
             quantity:true,
@@ -736,9 +736,9 @@ app.get("/report", async (req, res)=>{
       },
       include:
       {
-        sale:{
+        Sale:{
           include:{
-                listitem:{
+                ListItem:{
                   include:{
                     Item:true,
                   }
@@ -802,12 +802,12 @@ app.get("/allreport", async (req, res)=>{
 
 //listitem
 app.get("/listitem", async (req, res)=>{
-  const allItemBuyList = await prisma.listitem.findMany()
+  const allItemBuyList = await prisma.listItem.findMany()
   res.json(allItemBuyList)
 })
  
 app.post("/listitem", async (req, res)=>{
-  const newItemBuyList = await prisma.listitem.create({data: req.body})
+  const newItemBuyList = await prisma.listItem.create({data: req.body})
   res.json(newItemBuyList)
 })
  
@@ -826,7 +826,7 @@ app.post("/listitem", async (req, res)=>{
   
 app.delete("/listitem/:id", async (req, res)=>{ 
   const id = req.params.id
-  const deleteItemBuyList = await prisma.listitem.delete({where: {idBuyList:id}})
+  const deleteItemBuyList = await prisma.listItem.delete({where: {idBuyList:id}})
   res.json(deleteItemBuyList) 
 })
  
@@ -848,7 +848,7 @@ app.post("/salebuylist",async (req,res)=>{
       const quantity = itemData.quantity[index]
       const totalPrice = itemData.totalPrice[index]
 
-      const ListItem = await prisma.listitem.create({
+      const ListItem = await prisma.listItem.create({
         data: {
           idItem: id,
           idSale: createSale.idSale,
@@ -962,7 +962,7 @@ async function generateReport(){
   return createdReport
 }
 
-cron.schedule('40 3 * * *', async () => {
+cron.schedule('0 0 * * *', async () => {
   try { 
     const report = await generateReport()
   } catch (error) {
