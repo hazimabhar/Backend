@@ -7,57 +7,57 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model user {
+model User {
   idAccount String   @id @default(uuid())
   password    String
   icNumber    String   @unique
   role        String
-  Worker    worker?
-  Manager   manager?
-  Sale      sale[]
+  Worker    Worker?
+  Manager   Manager?
+  Sale      Sale[]
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
 }
  
-model worker {
+model Worker {
   idWorker    String   @id @default(uuid())
   name        String
   address     String
   phoneNumber String
   gender      String
   email       String
-  User        user     @relation(fields: [idAccount], references: [idAccount])
+  User        User     @relation(fields: [idAccount], references: [idAccount])
   idAccount   String   @unique
   createAt    DateTime @default(now())
   updateAt    DateTime @updatedAt
 }
 
-model manager {
+model Manager {
   idManager   String   @id @default(uuid())
   name        String
   address     String
   phoneNumber String
   gender      String
   email       String
-  User        user     @relation(fields: [idAccount], references: [idAccount])
+  User        User     @relation(fields: [idAccount], references: [idAccount])
   idAccount   String   @unique
   createAt    DateTime @default(now())
   updateAt    DateTime @updatedAt
 }
 
-model listitem {
+model ListItem {
   idListItem String @id @default(uuid())
   quantity Int
   totalPrice Float 
-  Item      item     @relation(fields: [idItem], references: [idItem])
+  Item      Item     @relation(fields: [idItem], references: [idItem])
   idItem    String   
-  Sale sale @relation(fields: [idSale], references: [idSale])
+  Sale Sale @relation(fields: [idSale], references: [idSale])
   idSale String            
   createdAt DateTime @default(now())
   updateAt  DateTime @updatedAt
 }
 
-model item {
+model Item {
   idItem          String           @id @default(uuid())
   name            String
   category        String
@@ -69,25 +69,25 @@ model item {
   image           String 
   createdAt       DateTime         @default(now())
   updateAt        DateTime         @updatedAt
-  ListItem listitem[]
+  ListItem ListItem[]
 }
 
-model sale {
+model Sale {
   idSale        String    @id @default(uuid())
   price         Float
   paymentMethod String
-  User        user     @relation(fields: [idAccount], references: [idAccount])
+  User        User     @relation(fields: [idAccount], references: [idAccount])
   idAccount   String   
-  Report        report    @relation(fields: [idReport], references: [idReport])
+  Report        Report    @relation(fields: [idReport], references: [idReport])
   idReport      String    
   createdAt     DateTime  @default(now())
   updateAt      DateTime  @updatedAt
-  ListItem listitem[]
+  ListItem ListItem[]
 }
 
-model report {  
+model Report {  
   idReport    String   @id @default(uuid())
-  Sale        sale[]
+  Sale        Sale[]
   numberSale  Int
   saleRevenue Float
   filePath    String
